@@ -1,7 +1,9 @@
-import { authReducer, authSlice } from "@/features/auth/model/auth-slice"
+import { baseApi } from "@/app/baseApi.ts"
+
 import { tasksReducer, tasksSlice } from "@/features/todolists/model/tasks-slice"
 import { todolistsReducer, todolistsSlice } from "@/features/todolists/model/todolists-slice"
 import { configureStore } from "@reduxjs/toolkit"
+import { setupListeners } from "@reduxjs/toolkit/query"
 import { appReducer, appSlice } from "./app-slice.ts"
 
 export const store = configureStore({
@@ -9,9 +11,12 @@ export const store = configureStore({
     [tasksSlice.name]: tasksReducer,
     [todolistsSlice.name]: todolistsReducer,
     [appSlice.name]: appReducer,
-    [authSlice.name]: authReducer,
+    [baseApi.reducerPath]: baseApi.reducer,
   },
+  middleware: (gDM) => gDM().concat(baseApi.middleware),
 })
+
+setupListeners(store.dispatch)
 
 export type RootState = ReturnType<typeof store.getState>
 export type AppDispatch = typeof store.dispatch

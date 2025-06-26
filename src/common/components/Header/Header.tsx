@@ -1,16 +1,26 @@
-import { changeThemeModeAC, selectAppStatus, selectThemeMode } from "@/app/app-slice.ts"
+import {
+  changeThemeModeAC,
+  selectAppStatus,
+  selectIsLoggedIn,
+  selectThemeMode,
+  setIsLoggedIn,
+} from "@/app/app-slice.ts"
+import { NavButton } from "@/common/components/NavButton/NavButton"
+import { AUTH_TOKEN } from "@/common/constants"
+import { ResultCode } from "@/common/enums"
 import { useAppDispatch, useAppSelector } from "@/common/hooks"
+import { Path } from "@/common/routing"
 import { containerSx } from "@/common/styles"
 import { getTheme } from "@/common/theme"
-import { NavButton } from "@/common/components/NavButton/NavButton"
-import { logoutTC, selectIsLoggedIn } from "@/features/auth/model/auth-slice"
+import { useLogoutMutation } from "@/features/auth/api/authApi.ts"
 import MenuIcon from "@mui/icons-material/Menu"
 import AppBar from "@mui/material/AppBar"
 import Container from "@mui/material/Container"
 import IconButton from "@mui/material/IconButton"
+import LinearProgress from "@mui/material/LinearProgress"
 import Switch from "@mui/material/Switch"
 import Toolbar from "@mui/material/Toolbar"
-import LinearProgress from "@mui/material/LinearProgress"
+import { NavLink } from "react-router"
 
 export const Header = () => {
   const isLoggedIn = useAppSelector(selectIsLoggedIn)
@@ -21,12 +31,19 @@ export const Header = () => {
 
   const theme = getTheme(themeMode)
 
+  const [mutation] = useLogoutMutation()
+
   const changeMode = () => {
     dispatch(changeThemeModeAC({ themeMode: themeMode === "light" ? "dark" : "light" }))
   }
 
   const logout = () => {
-    dispatch(logoutTC())
+    mutation().then((res) => {
+      if (res.data?.resultCode === ResultCode.Success) {
+        dispatch(setIsLoggedIn({ isLoggedIn: false }))
+        localStorage.removeItem(AUTH_TOKEN)
+      }
+    })
   }
 
   return (
@@ -38,6 +55,12 @@ export const Header = () => {
           </IconButton>
           <div>
             {isLoggedIn && <NavButton onClick={logout}>Sign out</NavButton>}
+            <NavLink style={{ color: "white" }} to={Path.Faq}>
+              Faq
+            </NavLink>
+            <NavLink style={{ color: "white" }} to={Path.Main}>
+              Main
+            </NavLink>
             <NavButton background={theme.palette.primary.dark}>Faq</NavButton>
             <Switch color={"default"} onChange={changeMode} />
           </div>
