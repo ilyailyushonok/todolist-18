@@ -4,6 +4,7 @@ import type { BaseResponse } from "@/common/types"
 import type { DomainTodolist } from "@/features/todolists/model/todolists-slice.ts"
 import type { Todolist } from "./todolistsApi.types"
 
+
 export const todolistsApi = baseApi.injectEndpoints({
   endpoints: (builder) => ({
     getTodos: builder.query<DomainTodolist[], void>({
